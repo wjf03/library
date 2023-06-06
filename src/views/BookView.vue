@@ -6,7 +6,7 @@
         <div style="display: inline-block; vertical-align: top;">
           <div class="book-title">{{ bookName }}</div>
           <el-rate v-model="rate" disabled show-score score-template="{value}"/>
-          <div class="book-author">作者：<span class="author-name" @click="authorInfo()" style="text-decoration: underline">{{ author }}</span></div>
+          <div class="book-author">作者：<span class="author-name" @click="authorInfo(authorId)" style="text-decoration: underline">{{ authorName }}</span></div>
           <div class="book-label" v-for="label in labels" :key="label"><span>{{ label }}</span></div>
           <el-scrollbar max-height="160px" style="margin: 10px 0px;">
             <div class="book-introduce">{{ introduce }}</div>
@@ -59,7 +59,10 @@
 </template>
 
 <script>
-import { reactive, toRefs } from 'vue'
+import { onMounted, reactive, toRefs } from 'vue'
+import { ElMessage } from 'element-plus'
+import router from '@/router'
+import { getBookById } from '@/api/book'
 
 export default {
   name: 'BookView',
@@ -133,26 +136,56 @@ export default {
   setup () {
     const state = reactive({
       username: '旅行者',
-      userType: 'manager',
-      bookName: '北航OS操作系统',
+      userType: 'common',
+      bookId: 0,
+      bookName: '',
       bookType: 'common',
       rate: 4.5,
-      author: 'abcde',
+      authorId: 0,
+      authorName: '',
       isStar: false,
       labels: ['label1', 'label2', 'label3333'],
-      introduce: 'this is book introduce this is book introduce this is book introduce this is book introduce this is book introduce\nthis is book introduce\nthis is book introduceeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\nthis is book introduce\nthis is book introduce\nthis is book introduce\nthis is book introduce\nthis is book introduce',
+      introduce: '',
+      // introduce: 'this is book introduce this is book introduce this is book introduce this is book introduce this is book introduce\nthis is book introduce\nthis is book introduceeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\nthis is book introduce\nthis is book introduce\nthis is book introduce\nthis is book introduce\nthis is book introduce',
       chapters: ['蒙德', '璃月', '稻妻', '须弥', '枫丹'],
       chapter_contents: ['chapter1 content1 content1 content11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111199999999999999999999', 'chapter2 content2 content2 content2', 'chapter3 content3 content3 content3', 'naxida'],
       comment_input: '',
       comment_input_rate: 0,
       comments: [{ username: '万叶', rate: 4.8, content: 'eqeaaaa' }, { username: '万叶', rate: 4.8, content: 'eqeaaaa' }]
     })
+    onMounted(async () => {
+      loadBook(state.bookId)
+    })
+    const loadBook = async (bookId) => {
+      const { data } = await getBookById(bookId)
+      state.bookName = data.book_name
+      state.authorId = data.author_id
+      state.authorName = data.author_name
+      state.introduce = data.book_desc
+    }
+    const star = async () => {
+      state.isStar = !state.isStar
+      if (state.isStar) {
+        ElMessage.success('收藏成功！')
+        /* 收藏接口 */
+      } else {
+        ElMessage.success('取消收藏成功！')
+      }
+    }
+    const authorInfo = async (id) => {
+      router.push({ path: '/author/' + id })
+    }
     const readBook = async (index) => {
       console.log('读第' + (index + 1) + '章')
+      ElMessage.info('读第' + (index + 1) + '章')
+      /* 跳转 */
     }
     return {
       ...toRefs(state),
-      readBook
+      loadBook,
+      star,
+      readBook,
+      authorInfo
     }
   }
 }

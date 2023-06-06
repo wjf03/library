@@ -2,7 +2,7 @@
   <nav>
     <router-link to="/">Home</router-link> |
     <router-link to="/about">About</router-link> |
-    <router-link to="/book">Book</router-link> |
+    <router-link to="/book/0">Book</router-link> |
     <router-link to="/author">Author</router-link> |
     <router-link to="/library">Library</router-link>
   </nav>
